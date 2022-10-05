@@ -1,0 +1,3 @@
+name: 6-patch
+runtime: java
+description: A minimal Kubernetes Pulumi YAML program

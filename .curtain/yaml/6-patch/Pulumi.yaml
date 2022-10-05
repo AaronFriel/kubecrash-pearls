@@ -1,0 +1,23 @@
+name: 6-patch
+description: A minimal Kubernetes Pulumi YAML program
+runtime: yaml
+resources:
+  k8sProvider:
+    type: pulumi:providers:kubernetes
+    defaultProvider: true
+    properties:
+      enableServerSideApply: true
+  deployment:
+    type: kubernetes:apps/v1:DeploymentPatch
+    properties:
+      metadata:
+        namespace: awesome-site
+        name: wordpress
+        annotations:
+          pulumi.com/patchForce: "true"
+      spec:
+        replicas: 3
+    options:
+      provider: ${k8sProvider}
+outputs:
+  status: ${deployment.status}

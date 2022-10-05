@@ -1,0 +1,99 @@
+name: 4-db
+description: A minimal Kubernetes Pulumi YAML program
+runtime: yaml
+variables:
+  namespace: awesome-site
+resources:
+  # Pretend this is a managed database!
+  rootPassword:
+    type: random:RandomPassword
+    properties:
+      length: 24
+      special: false
+  userPassword:
+    type: random:RandomPassword
+    properties:
+      length: 24
+      special: false
+  secret:
+    type: kubernetes:core/v1:Secret
+    properties:
+      metadata:
+        namespace: ${namespace}
+      stringData:
+        rootPassword: ${rootPassword.result}
+        userPassword: ${userPassword.result}
+  service:
+    type: kubernetes:core/v1:Service
+    properties:
+      metadata:
+        name: database-service
+        namespace: ${namespace}
+      spec:
+        ports:
+          - port: 3306
+            targetPort: 3306
+        selector:
+          app: db
+  database:
+    # mariadb
+    type: kubernetes:apps/v1:StatefulSet
+    properties:
+      metadata:
+        name: database
+        namespace: ${namespace}
+        labels:
+          app: db
+      spec:
+        selector:
+          matchLabels:
+            app: db
+        serviceName: database-service
+        replicas: 1
+        template:
+          metadata:
+            labels:
+              app: db
+          spec:
+            containers:
+              - name: database
+                image: mariadb:10
+                args: ['--default-authentication-plugin=mysql_native_password']
+                env:
+                  - name: MYSQL_DATABASE
+                    value: wordpress
+                  - name: MYSQL_USER
+                    value: wordpress
+                  - name: MYSQL_PASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: ${secret.metadata.name}
+                        key: userPassword
+                  - name: MYSQL_ROOT_PASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: ${secret.metadata.name}
+                        key: rootPassword
+                ports:
+                  - containerPort: 3306
+                    name: mysql
+                volumeMounts:
+                  - name: database
+                    mountPath: /var/lib/mysql
+            volumes:
+              - name: database
+                persistentVolumeClaim:
+                  claimName: database
+        volumeClaimTemplates:
+          - metadata:
+              name: database
+            spec:
+              accessModes: ['ReadWriteOnce']
+              resources:
+                requests:
+                  storage: 1Gi
+outputs:
+  dbHost: ${service.metadata.name}
+  dbUser: wordpress
+  dbName: wordpress
+  dbPassword: ${userPassword.result}

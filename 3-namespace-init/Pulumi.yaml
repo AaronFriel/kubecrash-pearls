@@ -1,0 +1,20 @@
+name: 3-namespace-init
+description: A minimal Kubernetes Pulumi YAML program
+runtime: yaml
+configuration:
+  kubernetes:kubeconfig:
+    type: string
+    secret: true
+resources:
+  k8sProvider:
+    type: pulumi:providers:kubernetes
+    defaultProvider: true
+    properties:
+      kubeconfig: ${kubernetes:kubeconfig}
+  awesome-site:
+    type: kubernetes:core/v1:Namespace
+    properties:
+      metadata:
+        name: awesome-site
+outputs:
+    name: ${awesome-site.metadata.name}

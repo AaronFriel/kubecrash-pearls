@@ -1,0 +1,3 @@
+name: 4-db
+runtime: python
+description: A minimal Kubernetes Pulumi YAML program

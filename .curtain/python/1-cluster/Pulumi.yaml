@@ -1,0 +1,6 @@
+name: 1-cluster
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: A minimal Civo Pulumi YAML program

@@ -1,0 +1,3 @@
+name: 2-helm
+runtime: dotnet
+description: A minimal Kubernetes Pulumi YAML program

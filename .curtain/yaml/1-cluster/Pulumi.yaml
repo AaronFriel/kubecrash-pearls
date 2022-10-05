@@ -1,0 +1,19 @@
+name: 1-cluster
+description: A minimal Civo Pulumi YAML program
+runtime: yaml
+resources:
+  firewall:
+    type: civo:Firewall
+    properties:
+      region: NYC1
+      createDefaultRules: true
+  cluster:
+    type: civo:KubernetesCluster
+    properties:
+      region: NYC1
+      firewallId: ${firewall.id}
+      pools:
+        nodeCount: 3
+        size: g4s.kube.medium
+outputs:
+  clusterName: ${cluster.name}

@@ -1,0 +1,6 @@
+name: 3-namespace-init
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: A minimal Kubernetes Pulumi YAML program

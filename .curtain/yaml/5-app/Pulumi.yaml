@@ -1,0 +1,84 @@
+name: 5-app
+description: A minimal Kubernetes Pulumi YAML program
+runtime: yaml
+resources:
+  dbStack:
+    type: pulumi:pulumi:StackReference
+    properties:
+      name: friel/4-db/dev
+  wordpress-secret:
+    type: kubernetes:core/v1:Secret
+    properties:
+      metadata:
+        namespace: awesome-site
+      stringData:
+        dbPassword: ${dbStack.outputs["dbPassword"]}
+  wordpress:
+    type: kubernetes:apps/v1:Deployment
+    properties:
+      metadata:
+        name: wordpress
+        namespace: awesome-site
+        labels: { app: wordpress }
+      spec:
+        selector:
+          matchLabels: { app: wordpress }
+        replicas: 3
+        template:
+          metadata:
+            labels: { app: wordpress }
+          spec:
+            containers:
+              - name: wordpress
+                image: wordpress:latest
+                ports:
+                  - containerPort: 80
+                    name: wordpress
+                env:
+                  - name: WORDPRESS_DB_NAME
+                    value: ${dbStack.outputs["dbName"]}
+                  - name: WORDPRESS_DB_HOST
+                    value: ${dbStack.outputs["dbHost"]}
+                  - name: WORDPRESS_DB_USER
+                    value: ${dbStack.outputs["dbUser"]}
+                  - name: WORDPRESS_DB_PASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: ${wordpress-secret.metadata.name}
+                        key: dbPassword
+  service:
+    type: kubernetes:core/v1:Service
+    properties:
+      metadata:
+        namespace: awesome-site
+        name: wordpress
+        labels: { app: wordpress }
+      spec:
+        selector: { app: wordpress }
+        ports:
+          - port: 80
+            targetPort: 80
+            protocol: TCP
+            name: wordpress
+        type: ClusterIP
+  ingress:
+    type: kubernetes:networking.k8s.io/v1:Ingress
+    properties:
+      metadata:
+        name: ingress
+        namespace: awesome-site
+        labels: { app: wordpress }
+      spec:
+        ingressClassName: nginx
+        rules:
+          - http:
+              paths:
+                - path: /
+                  pathType: Prefix
+                  backend:
+                    service:
+                      name: wordpress
+                      port:
+                        number: 80
+
+outputs: {}

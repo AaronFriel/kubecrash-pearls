@@ -1,0 +1,3 @@
+name: 4-db
+runtime: nodejs
+description: A minimal Kubernetes Pulumi YAML program

@@ -1,0 +1,3 @@
+name: automation
+description: A minimal Kubernetes Go Pulumi program
+runtime: go

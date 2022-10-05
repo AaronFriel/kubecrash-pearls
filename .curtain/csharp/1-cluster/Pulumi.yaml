@@ -1,0 +1,3 @@
+name: 1-cluster
+runtime: dotnet
+description: A minimal Civo Pulumi YAML program

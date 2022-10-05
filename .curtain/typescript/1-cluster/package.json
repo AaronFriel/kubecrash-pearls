@@ -1,0 +1,11 @@
+{
+		"name": "1-cluster",
+		"devDependencies": {
+			"@types/node": "^14"
+		},
+		"dependencies": {
+			"typescript": "^4.0.0",
+			"@pulumi/pulumi": "^3.0.0",
+			"@pulumi/civo": "2.3.0"
+		}
+}

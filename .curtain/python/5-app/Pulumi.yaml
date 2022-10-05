@@ -1,0 +1,6 @@
+name: 5-app
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: A minimal Kubernetes Pulumi YAML program
